@@ -25,7 +25,7 @@ jobs:
         pip install build
         pip install -r requirements.txt
     - name: Generate blacklist
-      run: python generate_blacklist.py
+      run: python processor.py
     - name: Publish package
       uses: ncipollo/release-action@v1
       with:
