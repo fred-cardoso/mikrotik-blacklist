@@ -19,7 +19,14 @@ SPAMHAUS_SOURCE = "https://www.spamhaus.org/drop/drop_v4.json"
 
 SAMHAMSAM_SOURCE = "https://raw.githubusercontent.com/Samhamsam/blocklist_mikrotik/master/blacklist_samhamsam.rsc"
 
-logging.basicConfig(level=logging.INFO)
+# There are a few IPs that are trustworthy but blocked (https://github.com/firehol/blocklist-ipsets/issues/173)
+WHITELIST = [
+    "140.82.121.3",
+    "140.82.121.4",
+    "104.192.141.1"
+]
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def load_ips_from_sources():
@@ -27,6 +34,7 @@ def load_ips_from_sources():
 
     for source_url, delimiter in SOURCES:
         response = requests.get(source_url)
+        logging.debug(f"Loaded {source_url}")
         for line in response.iter_lines():
             line = line.decode('utf-8')
             if "#" not in line and ";" not in line:
@@ -81,6 +89,9 @@ def generate_blacklist(output_file="blacklist.rsc"):
 
     # remove duplicates
     ip_addresses = list(set(ip_addresses))
+
+    for ip in WHITELIST:
+        ip_addresses.remove(ip)
 
     # Write data to file
     logging.info("Writing data to RSC file")
